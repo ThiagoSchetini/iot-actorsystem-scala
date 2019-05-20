@@ -24,7 +24,7 @@ class DeviceSpec (testSystem: ActorSystem) extends TestKit(testSystem)
 
   "A Device Actor" should {
 
-    "reply with empty reading if no temperature is known" in {
+    "reply empty reading if no temperature is known" in {
       val probe = TestProbe()
       val deviceActor = testSystem.actorOf(Device.props("group", "device"))
 
@@ -32,6 +32,31 @@ class DeviceSpec (testSystem: ActorSystem) extends TestKit(testSystem)
       val response = probe.expectMsgType[Device.RespondTemperature]
       response.requestId should ===(49L)
       response.value should ===(None)
+    }
+
+    "reply latest temperature reading" in {
+      val probe = TestProbe()
+      val deviceActor = testSystem.actorOf(Device.props("group", "device"))
+
+
+      // recording and reading first temperature
+      deviceActor.tell(Device.RecordTemperature(12L, 55.4), probe.ref)
+      probe.expectMsgType[Device.TemperatureRecorded]
+
+      deviceActor.tell(Device.ReadTemperature(13L), probe.ref)
+      val response1 = probe.expectMsgType[Device.RespondTemperature]
+      response1.requestId shouldBe 13L
+      response1.value shouldBe Some(55.4)
+
+
+      // recording and reading second temperature
+      deviceActor.tell(Device.RecordTemperature(14L, 73.2), probe.ref)
+      probe.expectMsgType[Device.TemperatureRecorded]
+
+      deviceActor.tell(Device.ReadTemperature(15L), probe.ref)
+      val response2 = probe.expectMsgType[Device.RespondTemperature]
+      response2.requestId shouldBe 15L
+      response2.value shouldBe Some(73.2)
     }
 
   }
