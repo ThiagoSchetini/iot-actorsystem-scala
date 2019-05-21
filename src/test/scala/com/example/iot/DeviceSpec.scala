@@ -59,6 +59,20 @@ class DeviceSpec (testSystem: ActorSystem) extends TestKit(testSystem)
       response2.value shouldBe Some(73.2)
     }
 
+    "register the new device" in {
+      val probe = TestProbe()
+      val deviceActor = testSystem.actorOf(Device.props("group", "device"))
+
+      deviceActor.tell(DeviceManager.RequestTrackDevice(11L, "group", "device"), probe.ref)
+      val response = probe.expectMsgType[DeviceManager.DeviceRegistered]
+      response.requestId shouldBe 11L
+      probe.lastSender shouldBe deviceActor
+    }
+
+    "ignore device registering if the groupId or deviceId are wrong" in {
+
+    }
+
   }
 
 }

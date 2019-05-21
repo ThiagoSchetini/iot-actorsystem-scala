@@ -27,8 +27,8 @@ class Device(groupId: String, deviceId: String) extends Actor with ActorLogging 
         sender.tell(DeviceRegistered, self)
       } else {
         log.warning(
-          "Ignoring track request {} for group {} and device {}. This actor responsible for group {} device {}",
-          id, group, device, this.groupId, this.deviceId
+          s"Ignoring track request $id for group {} and device {}. This actor responsible for group {} device {}",
+          group, device, this.groupId, this.deviceId
         )
       }
     }
