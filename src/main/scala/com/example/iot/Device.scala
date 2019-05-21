@@ -24,7 +24,7 @@ class Device(groupId: String, deviceId: String) extends Actor with ActorLogging 
   override def receive: Receive = {
     case DeviceManager.RequestTrackDevice(id, group, device) => {
       if (group == groupId && device == deviceId) {
-        sender.tell(DeviceRegistered, self)
+        sender.tell(DeviceRegistered(id), self)
       } else {
         log.warning(
           s"Ignoring track request $id for group {} and device {}. This actor responsible for group {} device {}",

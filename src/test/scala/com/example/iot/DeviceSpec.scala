@@ -1,8 +1,12 @@
 package com.example.iot
 
-import akka.actor.{ActorSystem}
+import java.util.concurrent.TimeUnit
+
+import akka.actor.ActorSystem
 import akka.testkit.{TestKit, TestProbe}
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
+
+import scala.concurrent.duration.FiniteDuration
 
 
 /**
@@ -59,7 +63,7 @@ class DeviceSpec (testSystem: ActorSystem) extends TestKit(testSystem)
       response2.value shouldBe Some(73.2)
     }
 
-    "register the new device" in {
+    "register a device" in {
       val probe = TestProbe()
       val deviceActor = testSystem.actorOf(Device.props("group", "device"))
 
@@ -70,8 +74,15 @@ class DeviceSpec (testSystem: ActorSystem) extends TestKit(testSystem)
     }
 
     "ignore device registering if the groupId or deviceId are wrong" in {
+      val probe = TestProbe()
+      val deviceActor = testSystem.actorOf(Device.props("group", "device"))
 
-    }
+      deviceActor.tell(DeviceManager.RequestTrackDevice(13L, "wrong-group", "device"), probe.ref)
+      probe.expectNoMessage(FiniteDuration.apply(500, TimeUnit.MILLISECONDS))
+
+      deviceActor.tell(DeviceManager.RequestTrackDevice(14L, "group", "wrong-device"), probe.ref)
+      probe.expectNoMessage(FiniteDuration.apply(500, TimeUnit.MILLISECONDS))
+   }
 
   }
 
