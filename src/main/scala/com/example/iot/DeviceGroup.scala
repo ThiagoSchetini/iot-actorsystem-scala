@@ -42,15 +42,14 @@ class DeviceGroup(groupId: String) extends Actor with ActorLogging {
 
     // the @ means to store the RequestTrackDevice on trackMsg reference
     case trackMsg @ RequestTrackDevice(_, `groupId`, deviceId) =>
-      val existingActor = deviceIdToActor.get(deviceId)
 
-      if (existingActor.isEmpty) {
+      if (deviceIdToActor.get(deviceId).isEmpty) {
         log.info("creating device actor for {}", deviceId)
         val deviceActor = context.actorOf(Device.props(groupId, deviceId))
         deviceIdToActor += deviceId -> deviceActor
         deviceActor.forward(trackMsg)
       }
-      else existingActor.get.forward(trackMsg)
+      else deviceIdToActor(deviceId).forward(trackMsg)
 
     case RequestTrackDevice(_, groupId, _) => log.warning(
         s"Ignoring TrackDevice Request for group {}. This actor is responsible for group {}",

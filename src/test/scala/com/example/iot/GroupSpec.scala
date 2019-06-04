@@ -41,7 +41,22 @@ class GroupSpec(testSystem: ActorSystem) extends TestKit(testSystem)
     }
 
     "existing device responds as registered" in {
+      val probe = TestProbe()
+      val groupActor = testSystem.actorOf(DeviceGroup.props("groupT"))
 
+      groupActor.tell(RequestTrackDevice(13L, "groupT", "device0"), probe.ref)
+      probe.expectMsg(DeviceRegistered(13L))
+      val device0 = probe.lastSender
+      device0.tell(Device.RecordTemperature(99L, 44.9), probe.ref)
+      probe.expectMsg(Device.TemperatureRecorded(99L))
+
+      groupActor.tell(RequestTrackDevice(12L, "groupT", "device0"), probe.ref)
+      probe.expectMsg(DeviceRegistered(12L))
+      val device0Again = probe.lastSender
+      device0Again.tell(Device.ReadTemperature(98L), probe.ref)
+      val response = probe.expectMsgType[Device.RespondTemperature]
+      response.requestId shouldBe 98L
+      response.value.get shouldBe 44.9
     }
 
     "not register a device with wrong groupId" in {

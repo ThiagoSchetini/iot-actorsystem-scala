@@ -85,5 +85,4 @@ class DeviceSpec (testSystem: ActorSystem) extends TestKit(testSystem)
    }
 
   }
-
 }
