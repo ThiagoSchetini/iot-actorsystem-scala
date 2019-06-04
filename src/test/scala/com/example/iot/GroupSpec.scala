@@ -41,7 +41,7 @@ class GroupSpec(testSystem: ActorSystem) extends TestKit(testSystem)
       probe.expectMsg(TemperatureRecorded(requestId = 17L))
     }
 
-    "existing device responds as registered" in {
+    "returns the same device and temperature for the same id" in {
       val probe = TestProbe()
       val groupActor = testSystem.actorOf(DeviceGroup.props("groupT"))
 
@@ -51,6 +51,7 @@ class GroupSpec(testSystem: ActorSystem) extends TestKit(testSystem)
       device0.tell(Device.RecordTemperature(99L, 44.9), probe.ref)
       probe.expectMsg(Device.TemperatureRecorded(99L))
 
+      // returns the same temperature to proof that is the same
       groupActor.tell(RequestTrackDevice(12L, "groupT", "device0"), probe.ref)
       probe.expectMsg(DeviceRegistered(12L))
       val device0Again = probe.lastSender
@@ -58,8 +59,10 @@ class GroupSpec(testSystem: ActorSystem) extends TestKit(testSystem)
       val response = probe.expectMsgType[Device.RespondTemperature]
       response.requestId shouldBe 98L
       response.value.get shouldBe 44.9
-    }
 
+      // check they are the same
+      device0 shouldEqual device0Again
+    }
     "not register a device with wrong groupId" in {
       val probe = TestProbe()
       val groupActor = testSystem.actorOf(DeviceGroup.props("groupB"))
