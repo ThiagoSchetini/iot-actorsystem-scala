@@ -4,6 +4,7 @@ import java.util.concurrent.TimeUnit
 
 import akka.actor.ActorSystem
 import akka.testkit.{TestKit, TestProbe}
+import com.example.iot.Device.{RecordTemperature, TemperatureRecorded}
 import com.example.iot.DeviceManager.{DeviceRegistered, RequestTrackDevice}
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 
@@ -33,11 +34,11 @@ class GroupSpec(testSystem: ActorSystem) extends TestKit(testSystem)
       device1 should !==(device2)
 
       // check devices are working
-      device1.tell(Device.RecordTemperature(14L, 39.8), probe.ref)
-      probe.expectMsg(Device.TemperatureRecorded(14L))
+      device1.tell(RecordTemperature(14L, 39.8), probe.ref)
+      probe.expectMsg(TemperatureRecorded(14L))
 
-      device2.tell(Device.RecordTemperature(17L, 43.1), probe.ref)
-      probe.expectMsg(Device.TemperatureRecorded(requestId = 17L))
+      device2.tell(RecordTemperature(17L, 43.1), probe.ref)
+      probe.expectMsg(TemperatureRecorded(requestId = 17L))
     }
 
     "existing device responds as registered" in {
