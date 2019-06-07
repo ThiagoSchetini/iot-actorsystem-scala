@@ -1,8 +1,8 @@
 package com.example.iot
 
-import akka.actor.{ActorSystem, Props}
+import akka.actor.{ActorSystem, PoisonPill}
 import akka.testkit.{TestKit, TestProbe}
-import com.example.iot.DeviceManager.{DeviceRegistered, ReplyGroupList, RequestGroupList, RequestTrackDevice}
+import com.example.iot.DeviceManager.{DeviceRegistered, ReplyGroupList, ReplyGroupMap, RequestGroupList, RequestGroupMap, RequestTrackDevice}
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 
 class ManagerSpec(testSystem: ActorSystem) extends TestKit(testSystem)
@@ -27,12 +27,39 @@ class ManagerSpec(testSystem: ActorSystem) extends TestKit(testSystem)
       probe.expectMsg(ReplyGroupList(31L, Set("groupY", "groupX")))
     }
 
-    "list active group after one shutdowns" in {
+    "map active group after one shutdowns" in {
+      val probe = TestProbe()
+      val managerActor = testSystem.actorOf(DeviceManager.props())
 
+      managerActor.tell(RequestTrackDevice(12L, "group1", "device1"), probe.ref)
+      probe.expectMsgType[DeviceRegistered]
+
+      managerActor.tell(RequestTrackDevice(13L, "group2", "device1"), probe.ref)
+      probe.expectMsgType[DeviceRegistered]
+
+      managerActor.tell(RequestGroupMap(14L), probe.ref)
+      val toShutDownGroup = probe.expectMsgType[ReplyGroupMap].groupsMap("group1")
+      probe.watch(toShutDownGroup)
+      toShutDownGroup.tell(PoisonPill.getInstance, probe.ref)
+
+      awaitAssert {
+        managerActor.tell(RequestGroupList(15L), probe.ref)
+        probe.expectMsg(ReplyGroupList(15L, Set("group2")))
+      }
     }
 
     "not register a duplicated group actor" in {
+      val probe = TestProbe()
+      val managerActor = testSystem.actorOf(DeviceManager.props())
 
+      managerActor.tell(RequestTrackDevice(28L, "groupOne", "deviceOne"), probe.ref)
+      probe.expectMsgType[DeviceRegistered]
+
+      managerActor.tell(RequestTrackDevice(29L, "groupOne", "deviceTwo"), probe.ref)
+      probe.expectMsgType[DeviceRegistered]
+
+      managerActor.tell(RequestGroupList(38L), probe.ref)
+      probe.expectMsg(ReplyGroupList(38L, Set("groupOne")))
     }
 
   }

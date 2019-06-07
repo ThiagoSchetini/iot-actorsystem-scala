@@ -1,7 +1,7 @@
 package com.example.iot
 
 import akka.actor.{Actor, ActorLogging, ActorRef, Props, Terminated}
-import com.example.iot.DeviceManager.{ReplyGroupList, RequestGroupList, RequestTrackDevice}
+import com.example.iot.DeviceManager.{ReplyGroupList, ReplyGroupMap, RequestGroupList, RequestGroupMap, RequestTrackDevice}
 
 object DeviceManager {
   def props(): Props = Props(new DeviceManager)
@@ -10,6 +10,8 @@ object DeviceManager {
   case class DeviceRegistered(requestId: Long)
   case class RequestGroupList(requestId: Long)
   case class ReplyGroupList(requestId: Long, groups: Set[String])
+  case class RequestGroupMap(requestId: Long)
+  case class ReplyGroupMap(requestId: Long, groupsMap: Map[String, ActorRef])
 }
 
 class DeviceManager extends Actor with ActorLogging {
@@ -35,6 +37,8 @@ class DeviceManager extends Actor with ActorLogging {
       }
 
     case RequestGroupList(requestId) => sender().tell(ReplyGroupList(requestId, groupIdToActor.keySet), self)
+
+    case RequestGroupMap(requestId) => sender().tell(ReplyGroupMap(requestId, groupIdToActor), self)
 
     case Terminated(groupActor) =>
       val groupId = actorToGroupId(groupActor)
