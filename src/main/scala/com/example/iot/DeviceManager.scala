@@ -1,13 +1,15 @@
 package com.example.iot
 
 import akka.actor.{Actor, ActorLogging, ActorRef, Props, Terminated}
-import com.example.iot.DeviceManager.RequestTrackDevice
+import com.example.iot.DeviceManager.{ReplyGroupList, RequestGroupList, RequestTrackDevice}
 
 object DeviceManager {
   def props(): Props = Props(new DeviceManager)
 
   case class RequestTrackDevice(requestId: Long, groupId: String, deviceId: String)
   case class DeviceRegistered(requestId: Long)
+  case class RequestGroupList(requestId: Long)
+  case class ReplyGroupList(requestId: Long, groups: Set[String])
 }
 
 class DeviceManager extends Actor with ActorLogging {
@@ -20,8 +22,9 @@ class DeviceManager extends Actor with ActorLogging {
   override def receive: Receive = {
     case trackMsg @ RequestTrackDevice(_, groupId, _) =>
       groupIdToActor.get(groupId) match {
-        case Some(groupActor) =>
-          groupActor.forward(trackMsg)
+
+        case Some(groupActor) => groupActor.forward(trackMsg)
+
         case None =>
           val groupActor = context.actorOf(DeviceGroup.props(trackMsg.groupId))
           context.watch(groupActor)
@@ -30,6 +33,8 @@ class DeviceManager extends Actor with ActorLogging {
           log.info("creating device group actor for group {}", trackMsg.groupId)
           groupActor.forward(trackMsg)
       }
+
+    case RequestGroupList(requestId) => sender().tell(ReplyGroupList(requestId, groupIdToActor.keySet), self)
 
     case Terminated(groupActor) =>
       val groupId = actorToGroupId(groupActor)

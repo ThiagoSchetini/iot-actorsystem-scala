@@ -24,8 +24,8 @@ class DeviceGroup(groupId: String) extends Actor with ActorLogging {
     case trackMsg @ RequestTrackDevice(_, `groupId`, _) =>
 
       deviceIdToActor.get(trackMsg.deviceId) match {
-        case Some(deviceActor) =>
-          deviceActor.forward(trackMsg)
+
+        case Some(deviceActor) => deviceActor.forward(trackMsg)
 
         case None =>
           log.info("creating device actor for {}", trackMsg.deviceId)
@@ -40,8 +40,7 @@ class DeviceGroup(groupId: String) extends Actor with ActorLogging {
         s"Ignoring TrackDevice Request for group {}. This actor is responsible for group {}",
       groupId, this.groupId)
 
-    case RequestDeviceList(requestId) =>
-      sender().tell(ReplyDeviceList(requestId, deviceIdToActor.keySet), self)
+    case RequestDeviceList(requestId) => sender().tell(ReplyDeviceList(requestId, deviceIdToActor.keySet), self)
 
     case Terminated(deviceActor) =>
       val deviceId = actorToDeviceId(deviceActor)

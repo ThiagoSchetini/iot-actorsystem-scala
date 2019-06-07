@@ -64,6 +64,7 @@ class GroupSpec(testSystem: ActorSystem) extends TestKit(testSystem)
       // check they are the same
       device0 shouldEqual device0Again
     }
+
     "not register a device with wrong groupId" in {
       val probe = TestProbe()
       val groupActor = testSystem.actorOf(DeviceGroup.props("groupB"))
