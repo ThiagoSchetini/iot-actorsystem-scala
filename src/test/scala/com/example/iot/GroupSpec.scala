@@ -2,7 +2,7 @@ package com.example.iot
 
 import java.util.concurrent.TimeUnit
 
-import akka.actor.{ActorSystem, PoisonPill, Terminated}
+import akka.actor.{ActorSystem, PoisonPill}
 import akka.testkit.{TestKit, TestProbe}
 import com.example.iot.Device.{RecordTemperature, TemperatureRecorded}
 import com.example.iot.DeviceGroup.{ReplyDeviceList, RequestDeviceList}

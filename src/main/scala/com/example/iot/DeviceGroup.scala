@@ -48,6 +48,5 @@ class DeviceGroup(groupId: String) extends Actor with ActorLogging {
       log.info("Device actor for {} has been terminated", deviceId)
       actorToDeviceId -= deviceActor
       deviceIdToActor -= deviceId
-      context.unwatch(deviceActor)
   }
 }
