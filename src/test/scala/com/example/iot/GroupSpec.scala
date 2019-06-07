@@ -2,7 +2,7 @@ package com.example.iot
 
 import java.util.concurrent.TimeUnit
 
-import akka.actor.ActorSystem
+import akka.actor.{ActorSystem, PoisonPill, Terminated}
 import akka.testkit.{TestKit, TestProbe}
 import com.example.iot.Device.{RecordTemperature, TemperatureRecorded}
 import com.example.iot.DeviceGroup.{ReplyDeviceList, RequestDeviceList}
@@ -86,7 +86,26 @@ class GroupSpec(testSystem: ActorSystem) extends TestKit(testSystem)
       probe.expectMsg(ReplyDeviceList(33L, Set("device1", "device2")))
     }
 
+    "list active device after one shuts down" in {
+      val probe = TestProbe()
+      val groupActor = testSystem.actorOf(DeviceGroup.props("groupS"))
 
+      groupActor.tell(RequestTrackDevice(71L, "groupS", "device1"), probe.ref)
+      probe.expectMsgType[DeviceRegistered]
 
-   }
+      groupActor.tell(RequestTrackDevice(72L, "groupS", "device2"), probe.ref)
+      probe.expectMsgType[DeviceRegistered]
+      val toShutDown = probe.lastSender
+
+      probe.watch(toShutDown)
+      toShutDown.tell(PoisonPill.getInstance, probe.ref)
+      probe.expectTerminated(toShutDown)
+
+      probe.awaitAssert {
+        groupActor.tell(RequestDeviceList(91L), probe.ref)
+        probe.expectMsg(ReplyDeviceList(91L, Set("device1")))
+      }
+    }
+
+  }
 }
