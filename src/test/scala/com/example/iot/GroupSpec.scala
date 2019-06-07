@@ -5,6 +5,7 @@ import java.util.concurrent.TimeUnit
 import akka.actor.ActorSystem
 import akka.testkit.{TestKit, TestProbe}
 import com.example.iot.Device.{RecordTemperature, TemperatureRecorded}
+import com.example.iot.DeviceGroup.{ReplyDeviceList, RequestDeviceList}
 import com.example.iot.DeviceManager.{DeviceRegistered, RequestTrackDevice}
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 
@@ -70,6 +71,22 @@ class GroupSpec(testSystem: ActorSystem) extends TestKit(testSystem)
       groupActor.tell(RequestTrackDevice(19L, "groupWrong", "deviceX"), probe.ref)
       probe.expectNoMessage(FiniteDuration.apply(500, TimeUnit.MILLISECONDS))
     }
+
+    "list active devices" in {
+      val probe = TestProbe()
+      val groupActor = testSystem.actorOf(DeviceGroup.props("groupX"))
+
+      groupActor.tell(RequestTrackDevice(1L, "groupX", "device1"), probe.ref)
+      probe.expectMsgType[DeviceRegistered]
+
+      groupActor.tell(RequestTrackDevice(2L, "groupX", "device2"), probe.ref)
+      probe.expectMsgType[DeviceRegistered]
+
+      groupActor.tell(RequestDeviceList(33L), probe.ref)
+      probe.expectMsg(ReplyDeviceList(33L, Set("device1", "device2")))
+    }
+
+
 
    }
 }
