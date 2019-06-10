@@ -27,6 +27,7 @@ class DeviceGroupQuery(
                         timeout: FiniteDuration)
   extends Actor with ActorLogging {
 
+  import context.dispatcher
   val queryTimeoutTimer = context.system.scheduler.scheduleOnce(timeout, self, CollectionTimedOut)
 
   override def preStart(): Unit = {
