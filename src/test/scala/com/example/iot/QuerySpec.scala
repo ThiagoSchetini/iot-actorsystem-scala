@@ -4,8 +4,8 @@ import java.util.concurrent.TimeUnit
 
 import akka.actor.{ActorSystem, PoisonPill}
 import akka.testkit.{TestKit, TestProbe}
-import com.example.iot.Device.RespondTemperature
-import com.example.iot.DeviceGroup.{DeviceNotAvailable, ReplyAllTemperatures, Temperature, TemperatureNotAvailable}
+import com.example.iot.Device.{ReadTemperature, RespondTemperature}
+import com.example.iot.DeviceGroup.{DeviceNotAvailable, DeviceTimedOut, ReplyAllTemperatures, Temperature, TemperatureNotAvailable}
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 
 import scala.concurrent.duration.FiniteDuration
@@ -24,7 +24,7 @@ class QuerySpec(testSystem: ActorSystem) extends TestKit(testSystem)
       val device1 = TestProbe()
       val device2 = TestProbe()
       val actorToDeviceId = Map(device1.ref -> "device1", device2.ref -> "device2")
-      val timeout = FiniteDuration.apply(3, TimeUnit.SECONDS)
+      val timeout = FiniteDuration.apply(2, TimeUnit.SECONDS)
 
       val queryActor = system.actorOf(DeviceGroupQuery.props(actorToDeviceId, 9L, requester.ref, timeout))
 
@@ -42,7 +42,7 @@ class QuerySpec(testSystem: ActorSystem) extends TestKit(testSystem)
       val device1 = TestProbe()
       val device2 = TestProbe()
       val actorToDeviceId = Map(device1.ref -> "device1", device2.ref -> "device2")
-      val timeout = FiniteDuration.apply(3, TimeUnit.SECONDS)
+      val timeout = FiniteDuration.apply(2, TimeUnit.SECONDS)
 
       val queryActor = system.actorOf(DeviceGroupQuery.props(actorToDeviceId, 11L, requester.ref, timeout))
 
@@ -58,21 +58,56 @@ class QuerySpec(testSystem: ActorSystem) extends TestKit(testSystem)
 
     "return DeviceNotAvailable if device stops before answering" in {
       val requester = TestProbe()
-      val deviceActor1 = TestProbe()
-      val deviceActor2 = TestProbe()
-      val actorToDeviceId = Map(deviceActor1.ref -> "device1", deviceActor2.ref -> "device2")
-      val timeout = FiniteDuration.apply(3, TimeUnit.SECONDS)
+      val device1 = TestProbe()
+      val device2 = TestProbe()
+      val actorToDeviceId = Map(device1.ref -> "device1", device2.ref -> "device2")
+      val timeout = FiniteDuration.apply(2, TimeUnit.SECONDS)
 
       val queryActor = system.actorOf(DeviceGroupQuery.props(actorToDeviceId, 13L, requester.ref, timeout))
 
-      deviceActor1.expectMsg(Device.ReadTemperature(0L))
-      deviceActor2.expectMsg(Device.ReadTemperature(0L))
+      device1.expectMsg(Device.ReadTemperature(0L))
+      device2.expectMsg(Device.ReadTemperature(0L))
 
-      queryActor.tell(RespondTemperature(0L, Some(33.4)), deviceActor1.ref)
-      deviceActor2.ref ! PoisonPill
+      queryActor.tell(RespondTemperature(0L, Some(33.4)), device1.ref)
+      device2.ref ! PoisonPill
 
-      requester.expectMsg(
-        ReplyAllTemperatures(13L, Map("device1" -> Temperature(33.4), "device2" -> DeviceNotAvailable)))
+      requester.expectMsg(ReplyAllTemperatures(13L, Map("device1" -> Temperature(33.4), "device2" -> DeviceNotAvailable)))
+    }
+
+    "return temperatures even if device stops after response" in {
+      val requester = TestProbe()
+      val device1 = TestProbe()
+      val device2 = TestProbe()
+      val actorToDeviceId = Map(device1.ref -> "device1", device2.ref -> "device2")
+      val timeout = FiniteDuration.apply(2, TimeUnit.SECONDS)
+
+      val queryActor = system.actorOf(DeviceGroupQuery.props(actorToDeviceId, 15L, requester.ref, timeout))
+
+      device1.expectMsg(Device.ReadTemperature(0L))
+      device2.expectMsg(Device.ReadTemperature(0L))
+
+      queryActor.tell(RespondTemperature(0L, Some(22.5)), device1.ref)
+      queryActor.tell(RespondTemperature(0L, Some(11.3)), device2.ref)
+      device2.ref ! PoisonPill
+
+      requester.expectMsg(ReplyAllTemperatures(15L, Map("device1" -> Temperature(22.5), "device2" -> Temperature(11.3))))
+    }
+
+    "return DeviceTimedOut if device does not answer in time" in {
+      val requester = TestProbe()
+      val device1 = TestProbe()
+      val device2 = TestProbe()
+      val actorToDeviceId = Map(device1.ref -> "device1", device2.ref -> "device2")
+      val x = FiniteDuration.apply(7, TimeUnit.SECONDS)
+
+      val queryActor = system.actorOf(DeviceGroupQuery.props(actorToDeviceId, 19L, requester.ref, x))
+
+      device1.expectMsg(ReadTemperature(0L))
+      device2.expectMsg(ReadTemperature(0L))
+
+      queryActor.tell(Temperature(55.9), device1.ref)
+
+      requester.expectMsg(ReplyAllTemperatures(19L, Map("device1" -> Temperature(55.9), "device2" -> DeviceTimedOut)))
     }
 
   }
