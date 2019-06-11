@@ -5,7 +5,7 @@ import java.util.concurrent.TimeUnit
 import akka.actor.ActorSystem
 import akka.testkit.{TestKit, TestProbe}
 import com.example.iot.Device.RespondTemperature
-import com.example.iot.DeviceGroup.{ReplyAllTemperatures, Temperature}
+import com.example.iot.DeviceGroup.{ReplyAllTemperatures, Temperature, TemperatureNotAvailable}
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 
 import scala.concurrent.duration.FiniteDuration
@@ -37,10 +37,29 @@ class QuerySpec(testSystem: ActorSystem) extends TestKit(testSystem)
       requester.expectMsg(ReplyAllTemperatures(9L, Map("device1" -> Temperature(29.2), "device2" -> Temperature(39.9))))
     }
 
-    "" in {
+    "return TemperatureNotAvailable for devices with no readings" in {
+      val requester = TestProbe()
+      val device1 = TestProbe()
+      val device2 = TestProbe()
+      val actorToDeviceId = Map(device1.ref -> "device1", device2.ref -> "device2")
+      val timeout = FiniteDuration.apply(3, TimeUnit.SECONDS)
+
+      val queryActor = system.actorOf(DeviceGroupQuery.props(actorToDeviceId, 11L, requester.ref, timeout))
+
+      device1.expectMsg(Device.ReadTemperature(0L))
+      device2.expectMsg(Device.ReadTemperature(0L))
+
+      queryActor.tell(RespondTemperature(0L, Some(31.33)), device1.ref)
+      queryActor.tell(RespondTemperature(0L, None), device2.ref)
+
+      requester.expectMsg(
+        ReplyAllTemperatures(11L, Map("device1" -> Temperature(31.33), "device2" -> TemperatureNotAvailable))
+      )
+    }
+
+    "return DeviceNotAvailable if device stops before answering" in {
 
     }
 
   }
-
 }
