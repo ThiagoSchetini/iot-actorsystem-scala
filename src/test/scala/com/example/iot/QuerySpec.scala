@@ -98,15 +98,24 @@ class QuerySpec(testSystem: ActorSystem) extends TestKit(testSystem)
       val device1 = TestProbe()
       val device2 = TestProbe()
       val actorToDeviceId = Map(device1.ref -> "device1", device2.ref -> "device2")
-      val x = FiniteDuration.apply(7, TimeUnit.SECONDS)
 
-      val queryActor = system.actorOf(DeviceGroupQuery.props(actorToDeviceId, 19L, requester.ref, x))
+      /*
+        the default time to wait to expectMsg is 3 sec.
+        so, more than 3 seconds will make an assertion fail
+       */
+      val timeout = FiniteDuration.apply(2, TimeUnit.SECONDS)
+
+      val queryActor = system.actorOf(DeviceGroupQuery.props(actorToDeviceId, 19L, requester.ref, timeout))
 
       device1.expectMsg(ReadTemperature(0L))
       device2.expectMsg(ReadTemperature(0L))
 
-      queryActor.tell(Temperature(55.9), device1.ref)
+      queryActor.tell(RespondTemperature(0L, Some(55.9)), device1.ref)
 
+      /*
+        the default time to wait to expectMsg is 3 sec.
+        the error will rise: java.lang.AssertionError: assertion failed: timeout (3 seconds) ...
+       */
       requester.expectMsg(ReplyAllTemperatures(19L, Map("device1" -> Temperature(55.9), "device2" -> DeviceTimedOut)))
     }
 
