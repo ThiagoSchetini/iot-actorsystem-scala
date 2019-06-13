@@ -4,6 +4,7 @@ import akka.actor.ActorSystem
 
 import scala.io.StdIn
 
+
 object IotApp extends App {
 
   val actorSystem= ActorSystem.create("iot-system")

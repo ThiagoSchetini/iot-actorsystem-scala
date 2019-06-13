@@ -5,7 +5,7 @@ import java.util.concurrent.TimeUnit
 import akka.actor.{ActorSystem, PoisonPill}
 import akka.testkit.{TestKit, TestProbe}
 import com.example.iot.Device.{RecordTemperature, TemperatureRecorded}
-import com.example.iot.DeviceGroup.{ReplyDeviceList, RequestDeviceList}
+import com.example.iot.DeviceGroup.{DeviceNotAvailable, DeviceTimedOut, ReplyAllTemperatures, ReplyDeviceList, RequestAllTemperatures, RequestDeviceList, Temperature, TemperatureNotAvailable}
 import com.example.iot.DeviceManager.{DeviceRegistered, RequestTrackDevice}
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 
@@ -106,6 +106,41 @@ class GroupSpec(testSystem: ActorSystem) extends TestKit(testSystem)
         groupActor.tell(RequestDeviceList(91L), probe.ref)
         probe.expectMsg(ReplyDeviceList(91L, Set("device1")))
       }
+    }
+
+    "collect temperatures from all devices" in {
+
+      // test configs
+      val probe = TestProbe()
+      val groupActor = system.actorOf(DeviceGroup.props("group"))
+
+
+      // creating the actors
+      groupActor.tell(RequestTrackDevice(1L, "group", "device1"), probe.ref)
+      probe.expectMsgType[DeviceRegistered]
+      probe.lastSender.tell(RecordTemperature(0L, 36.5), probe.ref)
+      probe.expectMsgType[TemperatureRecorded]
+
+      groupActor.tell(RequestTrackDevice(2L, "group", "device2"), probe.ref)
+      probe.expectMsgType[DeviceRegistered]
+      probe.lastSender.tell(RecordTemperature(0L, 89.7), probe.ref)
+      probe.expectMsgType[TemperatureRecorded]
+
+      groupActor.tell(RequestTrackDevice(3L, "group", "device3"), probe.ref)
+      probe.expectMsgType[DeviceRegistered]
+      // no temperature for device3
+
+
+      // reply
+      val timeout = FiniteDuration.apply(2, TimeUnit.SECONDS)
+      groupActor.tell(RequestAllTemperatures(99L, timeout), probe.ref)
+
+      probe.expectMsg(ReplyAllTemperatures(99L, Map(
+        "device1" -> Temperature(36.5),
+        "device2" -> Temperature(89.7),
+        "device3" -> TemperatureNotAvailable
+      )))
+
     }
 
   }

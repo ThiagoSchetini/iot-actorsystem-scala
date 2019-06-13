@@ -1,7 +1,5 @@
 package com.example.iot
 
-import java.util.concurrent.TimeUnit
-
 import akka.actor.{Actor, ActorLogging, ActorRef, Props, Terminated}
 import com.example.iot.DeviceGroup.{ReplyDeviceList, RequestAllTemperatures, RequestDeviceList}
 import com.example.iot.DeviceManager.RequestTrackDevice
@@ -14,7 +12,7 @@ object DeviceGroup {
   final case class RequestDeviceList(requestId: Long)
   final case class ReplyDeviceList(requestId: Long, ids:Set[String])
 
-  final case class RequestAllTemperatures(requestId: Long)
+  final case class RequestAllTemperatures(requestId: Long, timeout: FiniteDuration)
   final case class ReplyAllTemperatures(requestId: Long, temperatures: Map[String, TemperatureReading])
 
   sealed trait TemperatureReading
@@ -55,8 +53,7 @@ class DeviceGroup(groupId: String) extends Actor with ActorLogging {
 
     case RequestDeviceList(requestId) => sender().tell(ReplyDeviceList(requestId, deviceIdToActor.keySet), self)
 
-    case RequestAllTemperatures(requestId) =>
-      val timeout = FiniteDuration.apply(2, TimeUnit.SECONDS)
+    case RequestAllTemperatures(requestId, timeout) =>
       context.actorOf(DeviceGroupQuery.props(actorToDeviceId, requestId, sender(), timeout))
 
     case Terminated(deviceActor) =>
