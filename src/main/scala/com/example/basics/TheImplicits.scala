@@ -2,6 +2,7 @@ package com.example.basics
 
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.util.{Failure, Success}
 
 
 /**
@@ -45,7 +46,7 @@ object Connecting extends App {
   val conn = factory.getConnection
   print(conn + "connected ...")
 }
-*/
+
 
 /**
   * case 3 ->
@@ -77,8 +78,6 @@ final case class Hell(implicit beastVault: BeastVault) {
 
 object RapeTheUser extends App {
 
-  println("started")
-
   /* BeastVault doesn't need to be imported because it was implicitly created */
   final val hell: Hell = Hell()
   val user = User("Omen", Blood("red"))
@@ -86,25 +85,30 @@ object RapeTheUser extends App {
 
   /* need to import scala.concurrent.ExecutionContext.Implicits.global to have the ExecutionContext */
   val f: Future[Option[Blood]] = Future {
-    println("inside future")
     val rappedMsg = beast.rape(user)
     println(rappedMsg)
     Option(user.blood)
   }
 
+  f onComplete {
+    case Success(opt) => println("rape1: the user blood color was " + opt.get.color)
+    case Failure(t) => println("An error has occurred: " + t.getMessage)
+  }
 
+  val f2: Future[Option[Blood]] = Future {
+    val rappedMsg = beast.rape(user)
+    println(rappedMsg)
+    Option(user.blood)
+  }
 
-  f.onComplete(blood => println("the user's blood was" + blood.getOrElse("nothing")))
+  f2.onComplete {
+    case Success(opt) => println("rape2: the user blood color was " + opt.get.color)
+    case Failure(t) => println("An error has ocurred: " + t.getMessage)
+  }
 
-  f.wait()
-
-
-
-
-
-  println("finished")
+  Thread.sleep(1000)
 }
-
+  */
 
 /*
 class Something(val someVar: Int)
