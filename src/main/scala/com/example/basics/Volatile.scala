@@ -8,6 +8,9 @@ import grizzled.slf4j.Logging
 
 /**
   * tried to simulate the volatile variable on main memory, but failed
+  *
+  * "The problem doesn't appear to happen in the Sun/Oracle/OpenJDK JVM until the code has been optimised
+  * i.e. after it has been run 10,000 times"
   */
 object Volatile extends App with Logging {
 
