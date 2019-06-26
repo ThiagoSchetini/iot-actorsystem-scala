@@ -10,6 +10,9 @@ import grizzled.slf4j.Logging
   */
 object Futurando extends App with Logging {
 
+  val processors = Runtime.getRuntime.availableProcessors()
+  info("number of available processors: " + processors)
+
   for( i <- 1 to 32 ) {
     Future {
       blocking {
