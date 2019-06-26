@@ -1,5 +1,7 @@
 package com.example.basics
 
+import java.util.concurrent.Executors
+
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.{Failure, Success}
@@ -110,7 +112,11 @@ object RapeTheUser extends App {
 }
   */
 
-/*
+
+
+
+/* *****
+
 class Something(val someVar: Int)
 class Another(val anotherVar: Int)
 
@@ -159,8 +165,6 @@ object TestThis extends App {
   theClassInstance.someMethod
 
 
-
-
   // explicit applied so that value is used = 33
   new SomeClass().someMethod(new Something(33))
 
@@ -169,6 +173,7 @@ object TestThis extends App {
 
   // local scope overrides companion object implicit = 30 and 30 again
   implicit def x = new Something(30)
+
   new SomeClass().someMethod
   (new SomeClass with M).someMethod
 
@@ -188,4 +193,6 @@ object TestThis extends App {
 
   // testx2 is within SM so the implicit within SM overrides the implicit in M and the companion object = 22
   (new SomeClass with SM).testx2
+}
+
 */
