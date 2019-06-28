@@ -24,7 +24,6 @@ object Futurando extends App with Logging {
 
   for( i <- 1 to 300 ) {
     Future {
-      //info("[NO BLOCK] " + i)
       Thread.sleep(1)
     }.onComplete(_ => info("[NO BLOCK] " + i))
   }

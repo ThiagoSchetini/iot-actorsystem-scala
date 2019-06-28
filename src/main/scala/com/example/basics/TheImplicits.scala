@@ -113,10 +113,7 @@ object RapeTheUser extends App {
   */
 
 
-
-
-/* *****
-
+/*
 class Something(val someVar: Int)
 class Another(val anotherVar: Int)
 
@@ -124,6 +121,7 @@ object Something {
   implicit def qualquerPorra: Something = new Something(999)
   implicit def outraPorra: Another = new Another(21)
   implicit val bosta: Int = 29
+
 }
 
 class SomeClass {
@@ -194,5 +192,5 @@ object TestThis extends App {
   // testx2 is within SM so the implicit within SM overrides the implicit in M and the companion object = 22
   (new SomeClass with SM).testx2
 }
-
 */
+
