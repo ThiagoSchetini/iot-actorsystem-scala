@@ -9,16 +9,16 @@ object RecursiveAPI extends App {
 
 
   // filter = only filter by Boolean
-  println(list.filter(_ > 2)) // n => n > 4
+  println(list.filter(_ > 2))                     // n => n > 4
 
 
   // map = operation on each element
-  println(list.map(_ + 1)) // n => n + 1
-  println(strings.map(_.concat("::123"))) // str => str.concat("::123")
+  println(list.map(_ + 1))                        // n => n + 1
+  println(strings.map(_.concat("::123")))   // str => str.concat("::123")
 
 
   // scan = operation two by two with one on start concatenating individual results (outs all them)
-  println(list.scan(10)(_ + _)) // (a, b) => a + b
+  println(list.scan(10)(_ + _))                   // (a, b) => a + b
   println(list.scan(0)(_ + _))
 
 
@@ -34,6 +34,6 @@ object RecursiveAPI extends App {
 
 
   // fold = reduce, with one element on start (only final result outs too)
-  println(list.foldLeft(10)(_ + _)) // (a, b) => a + b
+  println(list.foldLeft(10)(_ + _))               // (a, b) => a + b
   println(list.fold(10)(_ + _))
 }
