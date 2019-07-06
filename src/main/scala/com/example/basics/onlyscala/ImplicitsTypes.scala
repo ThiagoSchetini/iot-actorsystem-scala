@@ -1,5 +1,4 @@
-package com.example.basics
-
+package com.example.basics.onlyscala
 
 final case class Json(value: String)
 final case class Person(document: String, age: Int, profession: String)

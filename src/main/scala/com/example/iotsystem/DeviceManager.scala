@@ -1,7 +1,7 @@
-package com.example.iot
+package com.example.iotsystem
 
 import akka.actor.{Actor, ActorLogging, ActorRef, Props, Terminated}
-import com.example.iot.DeviceManager.{ReplyGroupList, ReplyGroupMap, RequestGroupList, RequestGroupMap, RequestTrackDevice}
+import com.example.iotsystem.DeviceManager.{ReplyGroupList, ReplyGroupMap, RequestGroupList, RequestGroupMap, RequestTrackDevice}
 
 object DeviceManager {
   def props(): Props = Props(new DeviceManager)

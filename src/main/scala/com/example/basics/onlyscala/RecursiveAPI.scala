@@ -1,5 +1,4 @@
-package com.example.basics
-
+package com.example.basics.onlyscala
 
 object RecursiveAPI extends App {
 

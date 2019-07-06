@@ -1,5 +1,4 @@
-package com.example.basics
-
+package com.example.basics.onlyscala
 
 final case class Gson(value: String)
 final case class Fruit(name: String, price: Double)

@@ -1,4 +1,4 @@
-package com.example.iot
+package com.example.iotsystem
 
 import akka.actor.ActorSystem
 

@@ -1,8 +1,8 @@
-package com.example.iot
+package com.example.iotsystem
 
 import akka.actor.{Actor, ActorLogging, ActorRef, Props, Terminated}
-import com.example.iot.DeviceGroup.{ReplyDeviceList, RequestAllTemperatures, RequestDeviceList}
-import com.example.iot.DeviceManager.RequestTrackDevice
+import com.example.iotsystem.DeviceGroup.{ReplyDeviceList, RequestAllTemperatures, RequestDeviceList}
+import com.example.iotsystem.DeviceManager.RequestTrackDevice
 
 import scala.concurrent.duration.FiniteDuration
 

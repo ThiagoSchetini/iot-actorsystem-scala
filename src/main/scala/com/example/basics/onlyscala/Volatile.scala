@@ -1,12 +1,9 @@
-package com.example.basics
+package com.example.basics.onlyscala
 
-
-import scala.concurrent.Future
-import scala.concurrent.ExecutionContext.Implicits.global
 import java.time.Instant
+import scala.concurrent.ExecutionContext.Implicits.global
 import grizzled.slf4j.Logging
-
-
+import scala.concurrent.Future
 
 /**
   * tried to simulate the volatile variable on main memory, but failed

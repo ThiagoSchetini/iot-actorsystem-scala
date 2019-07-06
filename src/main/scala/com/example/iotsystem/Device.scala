@@ -1,8 +1,8 @@
-package com.example.iot
+package com.example.iotsystem
 
 import akka.actor.{Actor, ActorLogging, Props}
-import com.example.iot.Device.{ReadTemperature, RecordTemperature, RespondTemperature, TemperatureRecorded}
-import com.example.iot.DeviceManager.DeviceRegistered
+import com.example.iotsystem.Device.{ReadTemperature, RecordTemperature, RespondTemperature, TemperatureRecorded}
+import com.example.iotsystem.DeviceManager.DeviceRegistered
 
 object Device {
   def props(groupId: String, deviceId: String): Props = Props(new Device(groupId, deviceId))

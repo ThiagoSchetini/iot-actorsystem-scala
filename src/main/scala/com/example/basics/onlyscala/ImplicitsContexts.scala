@@ -1,4 +1,4 @@
-package com.example.basics
+package com.example.basics.onlyscala
 
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global

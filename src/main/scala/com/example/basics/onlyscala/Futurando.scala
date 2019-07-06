@@ -1,9 +1,9 @@
-package com.example.basics
+package com.example.basics.onlyscala
 
+import grizzled.slf4j.Logging
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{Future, blocking}
-import grizzled.slf4j.Logging
 
 /**
   * so, run and see what is the maximum number of Threads blocked that your PC is executing?

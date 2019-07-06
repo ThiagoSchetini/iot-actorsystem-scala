@@ -1,12 +1,12 @@
-package com.example.iot
+package com.example.iotsystem
 
 import java.util.concurrent.TimeUnit
 
 import akka.actor.{ActorSystem, PoisonPill}
 import akka.testkit.{TestKit, TestProbe}
-import com.example.iot.Device.{RecordTemperature, TemperatureRecorded}
-import com.example.iot.DeviceGroup.{DeviceNotAvailable, DeviceTimedOut, ReplyAllTemperatures, ReplyDeviceList, RequestAllTemperatures, RequestDeviceList, Temperature, TemperatureNotAvailable}
-import com.example.iot.DeviceManager.{DeviceRegistered, RequestTrackDevice}
+import com.example.iotsystem.Device.{RecordTemperature, TemperatureRecorded}
+import com.example.iotsystem.DeviceGroup.{DeviceNotAvailable, DeviceTimedOut, ReplyAllTemperatures, ReplyDeviceList, RequestAllTemperatures, RequestDeviceList, Temperature, TemperatureNotAvailable}
+import com.example.iotsystem.DeviceManager.{DeviceRegistered, RequestTrackDevice}
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 
 import scala.concurrent.duration.FiniteDuration

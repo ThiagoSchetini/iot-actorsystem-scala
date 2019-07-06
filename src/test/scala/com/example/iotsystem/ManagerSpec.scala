@@ -1,8 +1,8 @@
-package com.example.iot
+package com.example.iotsystem
 
 import akka.actor.{ActorSystem, PoisonPill}
 import akka.testkit.{TestKit, TestProbe}
-import com.example.iot.DeviceManager.{DeviceRegistered, ReplyGroupList, ReplyGroupMap, RequestGroupList, RequestGroupMap, RequestTrackDevice}
+import com.example.iotsystem.DeviceManager.{DeviceRegistered, ReplyGroupList, ReplyGroupMap, RequestGroupList, RequestGroupMap, RequestTrackDevice}
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 
 class ManagerSpec(testSystem: ActorSystem) extends TestKit(testSystem)

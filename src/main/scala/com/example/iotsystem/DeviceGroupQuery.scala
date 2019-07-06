@@ -1,9 +1,9 @@
-package com.example.iot
+package com.example.iotsystem
 
 import akka.actor.{Actor, ActorLogging, ActorRef, Props, Terminated}
-import com.example.iot.Device.RespondTemperature
-import com.example.iot.DeviceGroup.{DeviceNotAvailable, DeviceTimedOut, ReplyAllTemperatures, Temperature, TemperatureNotAvailable, TemperatureReading}
-import com.example.iot.DeviceGroupQuery.CollectionTimedOut
+import com.example.iotsystem.Device.RespondTemperature
+import com.example.iotsystem.DeviceGroup.{DeviceNotAvailable, DeviceTimedOut, ReplyAllTemperatures, Temperature, TemperatureNotAvailable, TemperatureReading}
+import com.example.iotsystem.DeviceGroupQuery.CollectionTimedOut
 
 import scala.concurrent.duration.FiniteDuration
 
