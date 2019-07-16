@@ -19,8 +19,7 @@ case class FireAndForget(message: String) extends Actor {
       Behaviors.same
   }
 
-
-
+  override def receive: Receive = ???
 }
 
 
